@@ -1,34 +1,48 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react'
 import { connect } from 'react-redux';
 import Recipe from '../components/Recipe';
 import { deleteRecipe } from '../actions';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { createStore } from 'redux';
 
 
-function RecipeList({ recipes, onDelete }) {
+const RecipeList = ({ recipes, onDelete }) => {
+  const [filteredRecipes, setFilteredRecipes] = useState(recipes);
+  let target_value;
 
-  if(!recipes.length) {
-    return (
-      <div class="text-center">
-      <h3>There is no recipes :(</h3>
-      <button className="btn btn-danger" >
-        <Link to='/new' style={{ color: '#FFF' }} >Recipe book is empty now, let's start culinary adventure!</Link>
-      </button>
-      </div>
-    )
+
+  useEffect(() => {
+    setFilteredRecipes(recipes);
+  }, [recipes]);
+  
+  function handleSearchChange(event) {
+    let filtered = recipes.filter(recipe =>
+        recipe.title.toLowerCase().includes(event.target.value.toLowerCase())
+      );
+    setFilteredRecipes(filtered);
+    console.log(filteredRecipes);
+
   }
+  
+  
   return (
-    <div  class="text-center">
-      
-    <button className="btn btn-danger"><Link style={{ color: '#FFF' }} to='/new'>Add new recipe</Link></button>
-      {recipes.map(recipe => {
-        return (
-          <Recipe recipe={ recipe } onDelete={ onDelete } key={ recipe.id } />
-        );
-      })}
-    </div>
+    
+        <div  class="text-center">
+        <input
+            type="text"
+            placeholder="Search recipes..."
+            onChange={handleSearchChange}
+        />
+        <button className="btn btn-danger"><Link style={{ color: '#FFF' }} to='/new'>Add new recipe</Link></button>
+            {recipes.length > 0 && filteredRecipes.map(recipe => {
+            return (
+                <Recipe recipe={ recipe } onDelete={ onDelete } key={ recipe.id } />
+            );
+            })}
+        </div>
+   
   );
-}
+};
 
 const mapStateToProps = state => {
   return {
